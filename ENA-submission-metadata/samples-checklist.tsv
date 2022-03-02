@@ -1,0 +1,18 @@
+Checklist	ERC000011	ENA default sample checklist								
+tax_id	scientific_name	sample_alias	sample_title	sample_description	cell_type	collected_by	lab_host	cell_line	concentration	RNAconc
+9606	Homo sapiens	 	V1	NI	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	NA	333
+9606	Homo sapiens		V2	CoV-2,4µ8C	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	0µM	280
+9606	Homo sapiens		V3	CoV-2,4µ8C	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	200µM	212
+9606	Homo sapiens		V6	CoV-2,4µ8C	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	100µM	156
+9606	Homo sapiens		V4	CoV-2,4µ8C	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	50µM	201
+9606	Homo sapiens		V5	NI	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	NA	280
+9606	Homo sapiens		V7	NI	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	NA	322
+9606	Homo sapiens		V8	DTT5mM1h	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	NA	285
+9606	Homo sapiens		V9	NI	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	NA	290
+9606	Homo sapiens		V10	CoV-2,4µ8C	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	0µM	310
+9606	Homo sapiens		V11	CoV-2,4µ8C	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	200µM	198
+9606	Homo sapiens		V14	CoV-2,4µ8C	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	100µM	168
+9606	Homo sapiens		V12	CoV-2,4µ8C	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	50µM	210
+9606	Homo sapiens		V13	NI	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	NA	180
+9606	Homo sapiens		V15	NI	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	NA	289
+9606	Homo sapiens		V16	DTT5mM1h	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	Calu3	NA	256
