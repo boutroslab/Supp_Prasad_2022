@@ -309,7 +309,7 @@ up_regulated_genes_Cov2 <- Cov2_over_Mock %>%
 write_delim(up_regulated_genes_Cov2,"../processed_data/star_top_table_Cov2_over_Mock_upCov2.txt",delim = "\t")
 ```
 
-##Visual inspection
+##Vizual inspection
 
 #x4µ8C_over_Mock
 
