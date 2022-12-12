@@ -37,3 +37,5 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+.DS_Store
+SARS-COV2-RNA-Seq-Drug2/scripts/DESeq2_scripts.zip

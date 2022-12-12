@@ -1,0 +1,12 @@
+Checklist	ERC000011	ENA default sample checklist								
+tax_id	scientific_name	sample_alias	sample_title	sample_description	cell_type	collected_by	lab_host	cell_line	concentration	RNAconc
+9606	Homo sapiens	 	V2.2	2. NonInf-DMSO	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE2	0µM	86.0Êng/µl
+9606	Homo sapiens		V2.3	3. NonInf 4µ8C_50µM	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE3	50µM	75.6Êng/µl
+9606	Homo sapiens		V2.4	4. NonInf 4u8C_100uM	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE4	100µM	69.0Êng/µl
+9606	Homo sapiens		V2.5	5. NonInf KIRA8_1µM	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE5	1µM	70.8Êng/µl
+9606	Homo sapiens		V2.6	6. NonInf KIRA8_2uM	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE6	2µM	74.4Êng/µl
+9606	Homo sapiens		V2.8	8. MOI10-DMSO	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE7	0µM	68.8Êng/µl
+9606	Homo sapiens		V2.9	9. MOI10 4µ8C_50µM	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE8	50µM	53.4Êng/µl
+9606	Homo sapiens		V2.10	10. MOI10 4µ8C_100µM	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE9	100µM	66.0Êng/µl
+9606	Homo sapiens		V2.11	11. MOI10 KIRA8_1µM	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE10	1µM	68.6Êng/µl
+9606	Homo sapiens		V2.12	12. MOI10 KIRA8_2µM	Human Lung Adenocarcinoma	Vibhu Prasad	Ralf Bartenschlager	A549-ACE11	2µM	73.2Êng/µl

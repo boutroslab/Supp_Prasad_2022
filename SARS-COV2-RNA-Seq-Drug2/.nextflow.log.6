@@ -1,0 +1,74 @@
+Oct-07 17:14:40.236 [main] DEBUG nextflow.cli.Launcher - Setting http proxy: ProxyConfig[protocol=http; host=www-int2; port=3128]
+Oct-07 17:14:40.248 [main] DEBUG nextflow.cli.Launcher - Setting https proxy: ProxyConfig[protocol=https; host=www-int2; port=3128]
+Oct-07 17:14:40.248 [main] DEBUG nextflow.cli.Launcher - Setting ftp proxy: ProxyConfig[protocol=ftp; host=www-int2; port=3128]
+Oct-07 17:14:40.249 [main] DEBUG nextflow.cli.Launcher - $> nextflow run nf-core/rnaseq -r 3.9 -profile test --outdir Desktop/test
+Oct-07 17:14:40.265 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 21.10.6
+Oct-07 17:14:40.288 [main] INFO  nextflow.cli.CmdRun - Pulling nf-core/rnaseq ...
+Oct-07 17:14:40.289 [main] DEBUG nextflow.scm.RepositoryProvider - Request [credentials -:-] -> https://api.github.com/repos/nf-core/rnaseq/contents/nextflow.config
+Oct-07 17:14:41.239 [main] DEBUG nextflow.scm.RepositoryProvider - Request [credentials -:-] -> https://api.github.com/repos/nf-core/rnaseq/contents/main.nf
+Oct-07 17:14:41.397 [main] DEBUG nextflow.scm.RepositoryProvider - Request [credentials -:-] -> https://api.github.com/repos/nf-core/rnaseq
+Oct-07 17:14:41.574 [main] DEBUG nextflow.scm.AssetManager - Pulling nf-core/rnaseq -- Using remote clone url: https://github.com/nf-core/rnaseq.git
+Oct-07 17:14:53.551 [main] WARN  org.eclipse.jgit.util.FS - Exception caught during execution of command '[git, --version]' in '/usr/bin', return code '72', error message '2022-10-07 17:14:53.144 xcodebuild[12440:649300] [MT] DVTPlugInLoading: Failed to load code for plug-in com.apple.dt.IDESimulatorAvailability (/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin), error = Error Domain=NSCocoaErrorDomain Code=3588 "dlopen(/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability, 0x0109): Symbol not found: (_OBJC_CLASS_$_SimDiskImage)
+  Referenced from: '/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability'
+  Expected in: '/Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/CoreSimulator'" UserInfo={NSLocalizedFailureReason=The bundle couldnât be loaded., NSLocalizedRecoverySuggestion=Try reinstalling the bundle., NSFilePath=/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability, NSDebugDescription=dlopen(/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability, 0x0109): Symbol not found: (_OBJC_CLASS_$_SimDiskImage)
+  Referenced from: '/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability'
+  Expected in: '/Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/CoreSimulator', NSBundlePath=/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin, NSLocalizedDescription=The bundle âIDESimulatorAvailabilityâ couldnât be loaded.}, dyldError = dlopen(/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability, 0x0000): Symbol not found: (_OBJC_CLASS_$_SimDiskImage)
+  Referenced from: '/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability'
+  Expected in: '/Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/CoreSimulator'
+2022-10-07 17:14:53.166 xcodebuild[12440:649300] [MT] DVTAssertions: ASSERTION FAILURE in /System/Volumes/Data/SWE/Apps/DT/BuildRoots/BuildRoot2/ActiveBuildRoot/Library/Caches/com.apple.xbs/Sources/DVTFrameworks/DVTFrameworks-21304/DVTFoundation/PlugInArchitecture/DataModel/DVTPlugIn.m:374
+Details:  Failed to load code for plug-in com.apple.dt.IDESimulatorAvailability (/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin)
+Please ensure Xcode packages are up-to-date â try running 'xcodebuild -runFirstLaunch'.
+
+NSBundle error: Error Domain=NSCocoaErrorDomain Code=3588 "dlopen(/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability, 0x0109): Symbol not found: (_OBJC_CLASS_$_SimDiskImage)
+  Referenced from: '/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability'
+  Expected in: '/Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/CoreSimulator'" UserInfo={NSLocalizedFailureReason=The bundle couldnât be loaded., NSLocalizedRecoverySuggestion=Try reinstalling the bundle., NSFilePath=/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability, NSDebugDescription=dlopen(/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability, 0x0109): Symbol not found: (_OBJC_CLASS_$_SimDiskImage)
+  Referenced from: '/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin/Contents/MacOS/IDESimulatorAvailability'
+  Expected in: '/Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/CoreSimulator', NSBundlePath=/Applications/Xcode.app/Contents/PlugIns/IDESimulatorAvailability.ideplugin, NSLocalizedDescription=The bundle âIDESimulatorAvailabilityâ couldnât be loaded.}
+Object:   <DVTPlugIn: 0x600002051180>
+Method:   -loadAssertingOnError:error:
+Thread:   <_NSMainThread: 0x6000004042c0>{number = 1, name = main}
+Hints: 
+
+Backtrace:
+  0  0x00000001024ed3d0
+  1  0x00000001024ecaac
+  2  0x00000001024ecc2c
+  3  0x000000010239b26c
+  4  0x00000001023610d8
+  5  0x000000010235f4e8
+  6  0x0000000182c201b4
+  7  0x0000000182c2f414
+  8  0x000000010253154c
+  9  0x000000010250d470
+ 10  0x000000010235f380
+ 11  0x000000010235f5a0
+ 12  0x00000001034232ec
+ 13  0x0000000103422ae0
+ 14  0x00000001034221e8
+ 15  0x0000000100dc0324
+ 16  0x0000000100981e0c
+sh: line 1: 12494 Abort trap: 6           /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -find git 2> /dev/null
+git: error: sh -c '/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -find git 2> /dev/null' failed with exit code 34304: (null) (errno=No such file or directory)
+xcode-select: Failed to locate 'git', requesting installation of command line developer tools.
+'
+Oct-07 17:14:53.605 [main] ERROR nextflow.cli.Launcher - Integer value http.postBuffer out of range
+java.lang.IllegalArgumentException: Integer value http.postBuffer out of range
+	at org.eclipse.jgit.lib.DefaultTypedConfigGetter.getInt(DefaultTypedConfigGetter.java:152)
+	at org.eclipse.jgit.lib.Config.getInt(Config.java:264)
+	at org.eclipse.jgit.transport.HttpConfig.init(HttpConfig.java:229)
+	at org.eclipse.jgit.transport.HttpConfig.<init>(HttpConfig.java:202)
+	at org.eclipse.jgit.transport.TransportHttp.<init>(TransportHttp.java:281)
+	at org.eclipse.jgit.transport.TransportHttp$1.open(TransportHttp.java:208)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:553)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:429)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:308)
+	at org.eclipse.jgit.transport.Transport.open(Transport.java:277)
+	at org.eclipse.jgit.api.FetchCommand.call(FetchCommand.java:235)
+	at org.eclipse.jgit.api.CloneCommand.fetch(CloneCommand.java:302)
+	at org.eclipse.jgit.api.CloneCommand.call(CloneCommand.java:200)
+	at nextflow.scm.AssetManager.download(AssetManager.groovy:608)
+	at nextflow.scm.AssetManager.download(AssetManager.groovy)
+	at nextflow.cli.CmdRun.getScriptFile(CmdRun.groovy:374)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:264)
+	at nextflow.cli.Launcher.run(Launcher.groovy:480)
+	at nextflow.cli.Launcher.main(Launcher.groovy:639)

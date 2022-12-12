@@ -1,0 +1,6 @@
+2022-10-07 17:19:47	17.3s	jolly_waddington	ERR	e049f51f0214b2aef7624b9dd496a404a7c34d14	43bf9a0f-7489-4ba4-b86c-161a00079c18	nextflow run nf-core/rnaseq -r 3.9 -profile test --outdir Desktop/test
+2022-10-07 17:22:01	21.9s	sick_majorana	ERR	e049f51f0214b2aef7624b9dd496a404a7c34d14	3f06d622-2948-4f94-963a-c2c6596be596	nextflow run nf-core/rnaseq -r 3.9 -profile test --outdir Desktop/test
+2022-10-07 17:24:03	2m 38s	gloomy_magritte	ERR	e049f51f0214b2aef7624b9dd496a404a7c34d14	d913d762-01ed-4a19-8281-0d8e22966b22	nextflow run nf-core/rnaseq -r 3.9 -profile test,docker --outdir Desktop/test
+2022-10-07 17:27:40	1m 16s	gigantic_faggin	ERR	e049f51f0214b2aef7624b9dd496a404a7c34d14	fad797bf-71ee-4316-8d21-1ec04fac24f6	nextflow run nf-core/rnaseq -r 3.9 -profile test,docker --outdir Desktop/test
+2022-10-07 17:29:28	1m 18s	mighty_franklin	ERR	e049f51f0214b2aef7624b9dd496a404a7c34d14	295ae904-580c-465d-8c1a-594028858cef	nextflow run nf-core/rnaseq -r 3.9 -profile test,docker --outdir Desktop/test
+2022-10-07 17:36:05	13.9s	naughty_miescher	ERR	e049f51f0214b2aef7624b9dd496a404a7c34d14	59adac91-0f66-4234-a29e-bf23d4f638b0	nextflow run nf-core/rnaseq -r 3.9 -profile test,singularity --outdir Desktop/test
