@@ -1,0 +1,232 @@
+---
+title: "Extras"
+author: "F. Heigwer"
+date: '2022-10-20'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Signature enrichment
+
+#x4µ8C_over_Mock
+
+```{r}
+
+# Load the pathways into a named list
+pathways.hallmark <- gmtPathways("../meta_data/h.all.v7.1.symbols.gmt")
+
+pathways.go <- gmtPathways("../meta_data/c5.bp.v7.1.symbols.gmt")
+
+this_data <- x4µ8C_over_Mock %>% as.data.frame() %>% 
+  rownames_to_column(var = "Geneid") %>% 
+  left_join(star_data_id2name)
+
+seq_results <- this_data %>%
+  select(stat=stat,Symbol=gene_name,Geneid) %>%
+  column_to_rownames("Geneid") %>%
+  na.omit() %>% 
+  distinct() %>% 
+  group_by(Symbol) %>% 
+  summarize(stat=mean(stat)) %>%
+  ungroup() %>%
+  deframe()
+
+#GSEA of hallmark sets
+
+fgsea_hallmark <- fgsea(pathways=pathways.hallmark, stats=seq_results)
+fgsea_hallmarktdy <- fgsea_hallmark %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+p1 <- fgsea_hallmarktdy %>% 
+  arrange(padj) %>%
+  head(.,40) %>%
+  ggplot(aes(reorder(pathway, NES), NES)) +
+  geom_col(aes(fill=padj<0.05)) +
+  coord_flip() +
+  labs(x="Pathway", y="Normalized Enrichment Score",
+       title="Hallmark pathways NES from GSEA") + 
+  theme_b110()+
+  scale_fill_manual(values = c(b110_grey,google_blue))
+
+ggsave("../plots/star_enriched_signatures_x4µ8C_over_Mock.pdf",p1,width = 10,height = 16)
+
+#GSEA of GO-term sets
+
+fgsea_go <- fgsea(pathways=pathways.go, stats=seq_results)
+fgsea_gotdy <- fgsea_go %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+p1 <- fgsea_gotdy %>% 
+  arrange(padj) %>%
+  head(.,40) %>%
+  ggplot(aes(reorder(pathway, NES), NES)) +
+  geom_col(aes(fill=padj<0.05)) +
+  coord_flip() +
+  labs(x="Pathway", y="Normalized Enrichment Score",
+       title="Hallmark pathways NES from GSEA") + 
+  theme_minimal()
+
+ggsave("../plots/star_enriched_GO_signatures_x4µ8C_over_Mock.pdf",p1,width = 10,height = 16)
+```
+
+
+### GSEA analysis
+
+We perform gene set enrichment analysis using the Broad Institute's [GSEA](http://software.broadinstitute.org/gsea/index.jsp) [@pmid17644558]. An R version of the algorithm is implemented in the `fgsea` algorithm [@Sergushichev060012], which we use for analysis.
+
+We want to visualize the results as a barcode plot. `fgsea` already implements a nice barcode plot, which we cusotomize a bit to adapt it according to our expectations.
+
+Code for the abrcode plot was inspired by [@pmid31097693] . c Benedikt Rauscher
+
+```{r, results='hide', warning=F, message=F}
+custom_barcode_plot <- function(df, sig){
+  ## named vector of gene-level stats
+  stat_vector <- setNames(df$stat, df$gene_name)
+  ## genes in signature
+  sig_genes <- pathways.hallmark[[sig]]
+  
+  ## generate barcode plot
+  bc_plot <- plotEnrichment(sig_genes, stat_vector)
+  
+  ## remove unwanted layers
+  bc_plot$layers <- list()
+  
+  ## add barcode at the bottom
+  lowest_pos <- min(bc_plot$data[,2])
+  dash_length <- abs(reduce(range(bc_plot$data[,2]), `-`)*0.1)
+  middle <- which.min(abs(sort(df$stat, decreasing=T)))
+  
+  bc_plot_custom <- bc_plot + geom_segment(aes(x=x, xend=x), y=lowest_pos,
+                           yend=lowest_pos-dash_length) + 
+    geom_line(colour='#4daf4a') + 
+    geom_hline(yintercept=lowest_pos, colour='#cccccc') + 
+    geom_hline(yintercept=0, colour='#cccccc') + xlab('') +
+    theme_classic() +
+    geom_tile(data=tibble(rank=1:length(stat_vector), 
+                          y=lowest_pos-(1.25*dash_length)), 
+              aes(x=rank, y=y, fill=rank),
+                  width=1,
+                  height=0.5*dash_length) +
+    scale_fill_gradient2(low ='#b2182b', high='#2166ac', 
+                         mid='#f7f7f7', midpoint = middle) + 
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    theme(panel.grid=element_blank(), 
+          axis.text.x=element_blank(),
+          axis.ticks.x = element_blank(),
+          legend.position = 'none') + 
+    ggtitle(paste(sig, 'signature')) +
+    ylab('Enrichment score')
+  
+  return(bc_plot_custom)
+}
+```
+
+barcode plots
+
+```{r}
+
+down_fgsea <- fgsea_hallmark %>% arrange(NES)
+
+## generate plots
+bc_plots_down <- map(1:8, function(j){#nrow()
+  bcp <- custom_barcode_plot(this_data, down_fgsea$pathway[j]) + 
+    annotate('text', x=Inf , y=Inf, hjust=1, vjust=1, 
+             label=paste('NES =', round(down_fgsea$NES[j], 2), 
+                         '\nFDR =', round(down_fgsea$padj[j], 3)))
+  
+  return(bcp)
+})
+
+up_fgsea <- fgsea_hallmark %>% arrange(-NES)
+
+## generate plots
+bc_plots_up <- map(1:8, function(j){#nrow()
+  bcp <- custom_barcode_plot(this_data, up_fgsea$pathway[j]) + 
+    annotate('text', x=Inf , y=Inf, hjust=1, vjust=1, 
+             label=paste('NES =', round(up_fgsea$NES[j], 2), 
+                         '\nFDR =', round(up_fgsea$padj[j], 3)))
+  
+  return(bcp)
+})
+
+## plot to canvas
+reduce(c(bc_plots_up), `+`) + plot_layout(ncol=2)
+
+  ggsave("../plots/star_signature_enrichment_upregulated_x4µ8C_over_Mock.pdf")
+
+## plot to canvas
+reduce(c(bc_plots_down), `+`) + plot_layout(ncol=2)
+
+ggsave("../plots/star_signature_enrichment_downregulated_x4µ8C_over_Mock.pdf")
+
+
+```
+
+#Cov2_over_Mock
+
+```{r}
+
+# Load the pathways into a named list
+pathways.hallmark <- gmtPathways("../meta_data/h.all.v7.1.symbols.gmt")
+
+pathways.go <- gmtPathways("../meta_data/c5.bp.v7.1.symbols.gmt")
+
+this_data <- Cov2_over_Mock %>% as.data.frame() %>% 
+  rownames_to_column(var = "Geneid") %>% 
+  left_join(star_data_id2name)
+
+seq_results <- this_data %>%
+  select(stat=stat,Symbol=gene_name,Geneid) %>%
+  column_to_rownames("Geneid") %>%
+  na.omit() %>% 
+  distinct() %>% 
+  group_by(Symbol) %>% 
+  summarize(stat=mean(stat)) %>%
+  ungroup() %>%
+  deframe()
+
+#GSEA of hallmark sets
+
+fgsea_hallmark <- fgsea(pathways=pathways.hallmark, stats=seq_results)
+fgsea_hallmarktdy <- fgsea_hallmark %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+fgsea_hallmarktdy %>% 
+  arrange(padj) %>%
+  head(.,40) %>%
+  ggplot(aes(reorder(pathway, NES), NES)) +
+  geom_col(aes(fill=padj<0.05)) +
+  coord_flip() +
+  labs(x="Pathway", y="Normalized Enrichment Score",
+       title="Hallmark pathways NES from GSEA") + 
+  theme_b110()+
+  scale_fill_manual(values = c(b110_grey,google_blue))
+
+ggsave("../plots/star_enriched_signatures_Cov2_over_Mock.pdf")
+
+#GSEA of GO-term sets
+
+fgsea_go <- fgsea(pathways=pathways.go, stats=seq_results)
+fgsea_gotdy <- fgsea_go %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+fgsea_gotdy %>% 
+  arrange(padj) %>%
+  head(.,40) %>%
+  ggplot(aes(reorder(pathway, NES), NES)) +
+  geom_col(aes(fill=padj<0.05)) +
+  coord_flip() +
+  labs(x="Pathway", y="Normalized Enrichment Score",
+       title="Hallmark pathways NES from GSEA") + 
+  theme_minimal()
+
+ggsave("../plots/star_enriched_GO_signatures_Cov2_over_Mock.pdf")
+```

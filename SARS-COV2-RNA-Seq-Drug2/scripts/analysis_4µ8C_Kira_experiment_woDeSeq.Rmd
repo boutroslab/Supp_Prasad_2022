@@ -58,7 +58,16 @@ google_blue = '#4285F4'
 
 raw_meta_data <- read_delim("meta_data/31983_meta.tsv",delim = "\t")
 
+raw_meta_data2 <- read_delim("meta_data/32516_meta.tsv",delim = "\t")
+
 raw_meta_data %<>% 
+  filter(grepl("R1",FASTQ_FILE)) %>% 
+  mutate(
+    run = gsub(pattern = "(.+)_.*.fastq.gz",
+               replacement = "\\1",x = FASTQ_FILE)) %>% 
+  dplyr::rename(sample = SAMPLE_NAME)
+
+raw_meta_data2 %<>% 
   filter(grepl("R1",FASTQ_FILE)) %>% 
   mutate(
     run = gsub(pattern = "(.+)_.*.fastq.gz",
@@ -88,14 +97,37 @@ raw_meta_data_2 <-
   mutate(concentration=gsub("µ","u",concentration)) %>%
   distinct()
 
-raw_meta_data <- bind_rows(raw_meta_data_1,raw_meta_data_2)
+raw_meta_data2_1 <-
+    raw_meta_data2 %>% separate(sample,c("infection","treatment","concentration"),remove = F,sep = "[|\ |\\-|_]") %>%
+  select(run,sample,infection,treatment,concentration) %>%
+  distinct() %>%
+  filter(!grepl("Kira",sample)) %>%
+  extract(run,"run","AS-(\\d+)-.+") %>%
+  mutate(treatment=if_else(treatment!="NonInf","4u8C",treatment),
+         concentration=factor(if_else(is.na(concentration),"0µM",concentration))) %>%
+  mutate(concentration=gsub("µ","u",concentration)) %>%
+  distinct()
+  
+raw_meta_data2_2 <-
+     raw_meta_data2 %>% separate(sample,c("infection","treatment","concentration"),remove = F,sep = "[|\ |\\-|_]") %>%
+  select(run,sample,infection,treatment,concentration) %>%
+  distinct() %>%
+  extract(run,"run","AS-(\\d+)-.+") %>%
+  filter(treatment!="4µ8C") %>%
+   filter(treatment!="4u8C") %>%
+  mutate(treatment=if_else(treatment!="NonInf","Kira",treatment),
+         concentration=factor(if_else(is.na(concentration),"0µM",concentration))) %>%
+  mutate(concentration=gsub("µ","u",concentration)) %>%
+  distinct()
+
+raw_meta_data <- bind_rows(raw_meta_data_1,raw_meta_data_2,raw_meta_data2_1,raw_meta_data2_2)
 ```
 
 #import the data from star
 
 ```{r,warning=F,message=F}
 
-star_data <- read_delim("data/merged_gene_counts.txt",delim = "\t")
+star_data <- read_delim("data/merged_gene_counts_2.txt",delim = "\t")
 
 colnames(star_data) <- gsub(pattern = "(\\S+?)Aligned.sortedByCoord.out.bam",replacement = "\\1",x = colnames(star_data))
 
@@ -109,10 +141,11 @@ star_data %<>%
   ungroup() %>% 
   select(Geneid,gene_name,number1,count)
 
-#star_data %<>% 
-#  select(-gene_name) %>% 
-#  column_to_rownames("Geneid") %>% 
-#  as.data.frame()
+star_data_deseq <- star_data %>% 
+  select(-gene_name) %>% 
+  spread(number1,count) %>% 
+  column_to_rownames("Geneid") %>%
+  as.data.frame()
 
 #star_data <- star_data[-grep("ENSSAS",rownames(star_data)),]
 
@@ -156,7 +189,9 @@ star_data_annotated <-
 
 star_data_foldchange_dmso <- 
 star_data_annotated %>%
-  select(-sample,-run) %>%
+  group_by(Geneid,gene_name,infection,treatment,concentration) %>%
+  summarise(norm_expr=mean(norm_expr)) %>%
+  ungroup() %>%
   unite(treatment,concentration,treatment) %>%
   spread(treatment,norm_expr) %>%
   mutate(across(one_of(c("100uM_4u8C","1uM_Kira","2uM_Kira","50uM_4u8C")),~.x-`0uM_DMSO`)) %>%
@@ -312,6 +347,243 @@ ggsave(filename = "plots/expression_Kira_4µ8c_effect_volcano_Cov2Inf.pdf",e,w=2
 
 ```
 
+
+## Analysis for drug testing DESeq2
+
+# design table preparation
+
+```{r}
+
+sampleTable_drug_experiment <- 
+  raw_meta_data %>% 
+    filter(concentration %in% c("2uM","100uM","0uM"))  %>% #,"100uM"#
+   # mutate(treatment=if_else(treatment=="4µ8C","4u8C",treatment)) %>%
+    mutate(treatment = if_else(concentration=='0uM','DMSO',treatment),infection=factor(infection),treatment=factor(treatment)) %>% 
+    select(-sample,-concentration) %>%
+    distinct() %>%
+   
+    as_data_frame()
+
+rownames(sampleTable_drug_experiment)<-sampleTable_drug_experiment$run
+
+```
+
+
+#simple prefiltering
+
+```{r,warning=F,message=F}
+
+star_data_drug_experiment <- star_data_deseq[,rownames(sampleTable_drug_experiment)]
+
+#star_data_drug_experiment <- star_data_drug_experiment[-grep("ENSSAS",rownames(star_data_drug_experiment)),]
+
+dds_drug_experiment <- DESeqDataSetFromMatrix(star_data_drug_experiment, sampleTable_drug_experiment, ~infection+treatment+treatment:infection)
+
+#counting transcripts
+
+nrow(dds_drug_experiment)
+
+#excluding genes that were not matched at all
+dds_drug_experiment <- dds_drug_experiment[ rowSums(counts(dds_drug_experiment)) > 10, ]
+nrow(dds_drug_experiment)
+
+#remaining 22316
+
+```
+
+#stabilize variance for low readcount genes
+
+```{r,warning=F,message=F}
+
+vsd <- vst(dds_drug_experiment, blind = FALSE)
+
+```
+
+#cluster data to get an overview
+
+Treatments should cluster together
+
+```{r,warning=F,message=F}
+require("pheatmap")
+require("RColorBrewer")
+
+sampleDists <- dist(t(assay(vsd)))
+sampleDistMatrix <- as.matrix( sampleDists )
+rownames(sampleDistMatrix) <- vsd$run
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
+annotations = data.frame("virus"=vsd$infection)
+row.names(annotations)<-vsd$run
+
+pheatmap(sampleDistMatrix,
+         clustering_distance_rows = sampleDists,
+         clustering_distance_cols = sampleDists,
+         col = colors,annotation_row = annotations)
+
+c <- plotPCA(vsd, c("infection")) + ggtitle("PCA by virus") + theme_b110()
+d <- plotPCA(vsd, c("treatment")) + ggtitle("PCA by drug")+ theme_b110()
+
+print(c+d)
+ggsave(c+d,filename = "plots/PCA_pre_batch_correct_dds_drug_experiment_wCov2.pdf")
+
+```
+
+# lets call differential genes
+
+```{r,warning=F,message=F}
+
+dds <- DESeq(dds_drug_experiment)
+
+# get available contrasts
+
+resultsNames(dds)
+
+# choose the contrast which shows the difference between treatments given background differences of the treatment response over time.
+
+x4u8C_over_Mock <- results(dds,contrast = c("treatment","4u8C","DMSO"))
+
+xkira_over_Mock <- results(dds,contrast = c("treatment","Kira","DMSO"))
+
+xkira_over_4u8C <- results(dds,contrast = c("treatment","Kira","4u8C"))
+
+Cov2_over_Mock <- results(dds,contrast = c("infection","MOI10","NonInf"))
+
+interaction_Cov2_over_Mock_DMSO <- results(dds,name = "infectionNonInf.treatmentDMSO")
+interaction_Cov2_over_Mock_Kira <- results(dds,name = "infectionNonInf.treatmentKira")
+
+summary(interaction_Cov2_over_Mock_DMSO)
+summary(interaction_Cov2_over_Mock_Kira)
+
+summary(x4u8C_over_Mock)
+summary(xkira_over_Mock)
+summary(xkira_over_4u8C)
+summary(Cov2_over_Mock)
+
+#res %>% as.data.frame() %>% View()
+# --> 4µ8C changes the transcriptome a lot (> 2000 DEG)
+# --> Kira changes the transcriptome very mildly (<30 DEG)
+# --> Infection changes the transcriptome very little (<3 DEG (disregarding viral transcripts))
+# --> Not transcript thats changed upon infection is significantly changed upon treatment (<1 DEG (disregarding viral transcripts))
+
+
+```
+
+
+
+# Cov2 vs drug
+
+```{r,warning=F,message=F}
+
+plotCounts(dds, gene = "ENSG00000120738", intgroup = c('treatment',"infection"),returnData = F) 
+
+# here we threshold the data simply in upregulated and down regulated according to foldchange and sort by FDR
+# for enrichment of functional annotation clustering it make further sense to threshold by fold change and FDR
+
+xkira_over_Mock %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "Geneid") %>% 
+  left_join(star_data_id2name)  %>%
+  arrange(padj) %>% 
+  write_delim(path = "processed_data/star_top_table_xkira_over_mock_full.txt",delim = "\t")
+
+down_regulated_genes_drug <- xkira_over_Mock %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "Geneid") %>% 
+  left_join(star_data_id2name)  %>% 
+  arrange(padj) %>% 
+  filter(log2FoldChange<0,padj<0.1)
+  
+write_delim(down_regulated_genes_drug,"processed_data/star_top_table_xkira_over_Mock_downdrug.txt",delim = "\t")
+
+up_regulated_genes_drug <- xkira_over_Mock %>% 
+  as.data.frame() %>%
+  rownames_to_column(var = "Geneid") %>%  
+  left_join(star_data_id2name)  %>% 
+  arrange(padj) %>% 
+  filter(log2FoldChange>0,padj<0.1)
+
+write_delim(up_regulated_genes_drug,"processed_data/star_top_table_xkira_over_Mock_updrug.txt",delim = "\t")
+
+
+```
+
+##Vizual inspection
+
+#xdrug_over_Mock
+
+```{r}
+# next we visualize the differential expressed genes using MA plot of base line expression versus fold change and foldchange versus -log10 pvalue
+# here all genes that are deferentially expressed between SARS-Cov2 infection and Mock treatment with an FDR < 0.1 are colored blue.
+# the top 15 differentially expressed genes according the the FDR ranking are labeled by their official gene symbol
+
+this_data <- xkira_over_Mock  %>%
+  as.data.frame() %>% 
+  rownames_to_column(var = "Geneid") %>%  
+  left_join(star_data_id2name) %>% 
+  mutate(significant = if_else(padj<=0.1,"significant","non-significant")) %>%
+  drop_na()
+
+ p1 <-this_data %>%
+         ggplot(aes(x=log2FoldChange,y=-log10(pvalue),col=significant,key=Geneid,gene_id=gene_name))  +
+            geom_point(data = this_data %>% filter(significant=="non-significant"),alpha=0.3) +
+            geom_point(data = this_data %>% filter(significant!="non-significant")) +
+            geom_vline(xintercept = 0,lty=2,col=b110_grey_light) +
+           geom_label_repel(data = this_data %>% filter(significant=="significant") %>% arrange(padj) %>% head(.,30),aes(label=gene_name),col=b110_grey,min.segment.length = 0) +
+            theme_b110() +
+            scale_color_manual(values = c(b110_grey_light,google_blue))+ 
+            ggtitle("Treatment differential Volcano-plot")
+
+
+p2 <-this_data %>%
+  ggplot(aes(x=baseMean,y=log2FoldChange,col=significant,key=Geneid,gene_id=gene_name)) +
+    geom_point(data = subset(this_data,significant=="non-significant"),alpha=0.3) +
+    geom_smooth(col="black") +
+    geom_point(data = subset(this_data,significant=="significant")) +
+     geom_label_repel(data = this_data %>% filter(significant=="significant") %>% arrange(padj) %>% head(.,15),aes(label=gene_name),col=b110_grey,min.segment.length = 0) +
+    theme_b110() +
+    scale_color_manual(values = c(b110_grey_light,google_blue)) + 
+    ggtitle("Treatment differential MA-plot") +
+    scale_x_log10()
+
+ggsave(p1,filename = "plots/star_differential_expressed_volcano_xkira_over_Mock.pdf")
+ggsave(p2,filename = "plots/star_differential_expressed_MA_xkira_over_Mock.pdf")
+
+# next we visualize the same data without the viral genes
+
+
+this_data <- xkira_over_Mock  %>%
+  as.data.frame() %>% 
+  rownames_to_column(var = "Geneid") %>%  
+  left_join(star_data_id2name) %>% 
+  mutate(significant = if_else(padj<=0.1,"significant","non-significant")) %>%
+  drop_na() %>%
+  filter(grepl("ENSG",Geneid))
+
+ p1 <-this_data %>%
+         ggplot(aes(x=log2FoldChange,y=-log10(pvalue),col=significant,key=Geneid,gene_id=gene_name))  +
+            geom_point(data = this_data %>% filter(significant=="non-significant"),alpha=0.3) +
+            geom_point(data = this_data %>% filter(significant!="non-significant")) +
+            geom_vline(xintercept = 0,lty=2,col=b110_grey_light) +
+           geom_label_repel(data = this_data %>% filter(significant=="significant") %>% arrange(padj) %>% head(.,30),aes(label=gene_name),col=b110_grey,min.segment.length = 0) +
+            theme_b110() +
+            scale_color_manual(values = c(b110_grey_light,google_blue))+ 
+            ggtitle("Treatment differential Volcano-plot")
+
+
+p2 <-this_data %>%
+  ggplot(aes(x=baseMean,y=log2FoldChange,col=significant,key=Geneid,gene_id=gene_name)) +
+    geom_point(data = subset(this_data,significant=="non-significant"),alpha=0.3) +
+    geom_smooth(col="black") +
+    geom_point(data = subset(this_data,significant=="significant")) +
+     geom_label_repel(data = this_data %>% filter(significant=="significant") %>% arrange(padj) %>% head(.,15),aes(label=gene_name),col=b110_grey,min.segment.length = 0) +
+    theme_b110() +
+    scale_color_manual(values = c(b110_grey_light,google_blue)) + 
+    ggtitle("Treatment differential MA-plot") +
+    scale_x_log10()
+
+ggsave(p1,filename = "plots/star_differential_expressed_volcano_xkira_over_Mock_woCov2.pdf")
+ggsave(p2,filename = "plots/star_differential_expressed_MA_xkira_over_Mock_woCov2.pdf")
+```
 
 
 # write table of detected genes
