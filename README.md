@@ -1,6 +1,6 @@
 # Prasad et al., TBA 2023
 
-[![DOI](https://)](https://)
+[![DOI](https://zenodo.org/badge/465067759.svg)](https://zenodo.org/badge/latestdoi/465067759)
 
 This directory contains scripts and files supporting the publication: </br>
 
